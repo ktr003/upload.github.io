@@ -10,13 +10,21 @@
   <script src='https://www.gstatic.com/firebasejs/7.5.0/firebase-storage.js'></script>
   <script>
 
-    //firebase初期化
-    var firebaseConfig = {
-      apiKey: 'xxxxx',
-      projectId: 'yyyyy',
-      storageBucket: 'zzzzzz',
-    }
-    firebase.initializeApp(firebaseConfig);
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtDj9LnJFA7Vct4JbAbqidNg1BsSq8YNY",
+            authDomain: "noteapp-1229.firebaseapp.com",
+            projectId: "noteapp-1229",
+            storageBucket: "noteapp-1229.appspot.com",
+            messagingSenderId: "330140971770",
+            appId: "1:330140971770:web:3760d22c8f5ff8c23d8f43",
+            measurementId: "G-5WMTW9TM22"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 
     //formのsubmitにイベント設定
     var form = document.querySelector('form');
