@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>storage</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .disN {
+            display: none;
+        }
+
+        .disB {
+            display: block;
+        }
+
+        img {
+            height: 300px;
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div><input type="file" name="" id="fileButton" /></div>
+        <div>
+            <button id="up">アップロード</button>
+            <button id="down" class="disN">ダウンロード</button>
+        </div>
+        <div>
+            <p>
+                ダウンロードボタンをクリックした後、<br />数秒後に画像が表示されます。
+            </p>
+            <img id="image" src="" alt="ダウンロード画像です" />
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-analytics.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDtDj9LnJFA7Vct4JbAbqidNg1BsSq8YNY",
+            authDomain: "noteapp-1229.firebaseapp.com",
+            projectId: "noteapp-1229",
+            storageBucket: "noteapp-1229.appspot.com",
+            messagingSenderId: "330140971770",
+            appId: "1:330140971770:web:3760d22c8f5ff8c23d8f43",
+            measurementId: "G-5WMTW9TM22"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/7.23.0/firebase-storage.js"></script>
+    <script>
+        //アップロード
+        const up = document.getElementById("up");
+        up.addEventListener("click", () => {
+            //ファイルの取得
+            const file = document.getElementById("fileButton").files[0];
+            //ファイルの参照
+            var storageRef = firebase.storage().ref();
+
+            //ファイルのメタデータ
+            var metadata = {
+                contentType: "image/*",
+            };
+            //画像ファイルのアップロード
+            const uploadTask = storageRef.child("image/" + file.name).put(file, metadata);
+            console.log(uploadTask);
+
+            var flg = 0;
+            uploadTask.on(
+                "state_changed",
+                function (snapshot) {
+                    var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log("Upload is " + progress + "% done");
+                    switch (snapshot.state) {
+                        case firebase.storage.TaskState.PAUSED: // or 'paused'
+                            console.log("Upload is paused");
+                            break;
+                        case firebase.storage.TaskState.RUNNING: // or 'running'
+                            console.log("Upload is running");
+                            break;
+                    }
+                    if (progress === 100 && flg === 0) {
+                        console.log("100%です。");
+                        var display = document.querySelector(".disN");
+                        display.classList.replace("disN", "disB");
+                        flg = 1;
+                    }
+                },
+                function (error) {
+                    switch (error.code) {
+                        case "storage/unauthorized":
+                            // User doesn't have permission to access the object
+                            console.log(
+                                "目的の操作を行う権限がユーザーにありません。セキュリティ ルールが正しいことをご確認ください。"
+                            );
+                            break;
+
+                        case "storage/canceled":
+                            // User canceled the upload
+                            console.log("ユーザーがオペレーションをキャンセルしました。");
+                            break;
+
+                        case "storage/unknown":
+                            // Unknown error occurred, inspect error.serverResponse
+                            console.log("不明なエラーが発生しました。");
+                            break;
+                        default:
+                            console.log("error");
+                            break;
+                    }
+                }
+            );
+        });
+
+        //ダウンロード
+        const down = document.getElementById("down");
+        down.addEventListener("click", () => {
+            //ファイルの取得
+            const file = document.getElementById("fileButton").files[0];
+            //ファイルの参照
+            var storageRef = firebase.storage().ref();
+            const DownloadTask = storageRef.child("image/" + file.name);
+
+            //画像ファイルのダウンロード
+            DownloadTask.getDownloadURL().then((downloadURL) => {
+                document.getElementById("image").src = downloadURL;
+            });
+        });
+    </script>
+</body>
+</html>
